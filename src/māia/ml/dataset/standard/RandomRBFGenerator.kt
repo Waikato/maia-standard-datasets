@@ -1,14 +1,16 @@
 package māia.ml.dataset.standard
 
-import māia.ml.dataset.DataColumnHeader
 import māia.ml.dataset.DataMetadata
 import māia.ml.dataset.DataRow
 import māia.ml.dataset.DataStream
-import māia.ml.dataset.type.DataType
-import māia.ml.dataset.type.standard.NominalDoubleIndexImpl
-import māia.ml.dataset.type.standard.NumericDoubleImpl
-import māia.ml.dataset.util.buildRow
-import māia.ml.dataset.util.formatStringSimple
+import māia.ml.dataset.headers.DataColumnHeaders
+import māia.ml.dataset.headers.MutableDataColumnHeaders
+import māia.ml.dataset.headers.ensureOwnership
+import māia.ml.dataset.type.DataRepresentation
+import māia.ml.dataset.type.standard.Nominal
+import māia.ml.dataset.type.standard.Numeric
+import māia.util.assertType
+import māia.util.inlineRangeForLoop
 import māia.util.magnitude
 import māia.util.nextDoubleArray
 import māia.util.nextGaussian
@@ -46,30 +48,21 @@ class RandomRBFGenerator(
         centroids = Array(numCentroids) {
             Centroid(
                 modelRand.nextDoubleArray(numAttributes),
-                modelRand.nextInt(numClasses).toDouble(),
+                modelRand.nextInt(numClasses),
                 modelRand.nextDouble()
             )
         }
         centroidWeights = modelRand.nextDoubleArray(numCentroids)
     }
 
-    private val headers: Array<DataColumnHeader> = Array(numColumns) { index ->
-        if (index == numAttributes) {
-            object : DataColumnHeader {
-                override val name : String = "class"
-                override val type : DataType<*, *> = NominalDoubleIndexImpl(*Array(numClasses) { "class ${it + 1}" })
-                override val isTarget : Boolean = true
-            }
-        } else {
-            object : DataColumnHeader {
-                override val name : String = "att ${index + 1}"
-                override val type : DataType<*, *> = NumericDoubleImpl
-                override val isTarget : Boolean = false
-            }
+    private val headersInternal = MutableDataColumnHeaders(numColumns).also { headers ->
+        inlineRangeForLoop(numAttributes) { index ->
+            headers.append("att ${index + 1}", Numeric.PlaceHolder(false), false)
         }
+        headers.append("class", Nominal.PlaceHolder(false, *Array(numClasses) { "class ${it + 1}" }), true)
     }
 
-    override fun getColumnHeader(columnIndex : Int) : DataColumnHeader = headers[columnIndex]
+    override val headers = headersInternal.readOnlyView
 
     override fun rowIterator() : Iterator<DataRow> {
         return object : Iterator<DataRow> {
@@ -80,22 +73,35 @@ class RandomRBFGenerator(
 
     private fun nextRow(): DataRow {
         val centroid = centroids[instanceRandom.nextIntWeighted(centroidWeights)]
-        val attVals = DoubleArray(numColumns)
-        for (index in 0 until numAttributes)
-            attVals[index] = instanceRandom.nextDouble(-1.0, 1.0)
+        val attVals = DoubleArray(numAttributes) { instanceRandom.nextDouble(-1.0, 1.0) }
         val desiredMag = instanceRandom.nextGaussian() * centroid.stdDev
         val scale = desiredMag / attVals.magnitude
         for (index in 0 until numAttributes)
             attVals[index] = attVals[index] * scale + centroid.centre[index]
 
-        attVals[numAttributes] = centroid.classLabel
+        return DataRow(headers, attVals, centroid.classIndex)
+    }
 
-        return buildRow(attVals.toTypedArray())
+    class DataRow(
+        override val headers: DataColumnHeaders,
+        private val attributeValues: DoubleArray,
+        private val classIndex: Int
+    ): māia.ml.dataset.DataRow {
+        override fun <T> getValue(
+            representation : DataRepresentation<*, *, out T>
+        ) : T = headers.ensureOwnership(representation) {
+            columnIndex.let {
+                if (it < attributeValues.size)
+                    convert(attributeValues[it], assertType<Numeric<*, *>>(dataType).canonicalRepresentation)
+                else
+                    convert(classIndex, assertType<Nominal<*, *, *, *>>(dataType).indexRepresentation)
+            }
+        }
     }
 }
 
 private data class Centroid(
     val centre: DoubleArray,
-    val classLabel: Double,
+    val classIndex: Int,
     val stdDev: Double
 )

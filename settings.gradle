@@ -1,2 +1,4 @@
+rootProject.name = "maia-standard-datasets"
+includeBuild "../maia-build"
 includeBuild "../maia-dataset"
 includeBuild "../maia-standard-types"
