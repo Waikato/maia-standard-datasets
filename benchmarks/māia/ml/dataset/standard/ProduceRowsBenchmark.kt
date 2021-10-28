@@ -5,7 +5,6 @@ import kotlinx.benchmark.Mode
 import kotlinx.benchmark.Scope
 import māia.ml.dataset.type.standard.Numeric
 import māia.util.assertType
-import māia.util.inlineRangeForLoop
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Measurement
@@ -44,10 +43,10 @@ open class RandomDisposeBenchmark {
         )
         val iter = gen.rowIterator()
 
-        inlineRangeForLoop(params.numRows) {
+        repeat(params.numRows) {
             val row = iter.next()
             var sum = 0.0
-            inlineRangeForLoop(params.numAttrs) {
+            repeat(params.numAttrs) {
                 val repr = assertType<Numeric<*, *>>(gen.headers[it].type).canonicalRepresentation
                 sum += row.getValue(repr)
             }

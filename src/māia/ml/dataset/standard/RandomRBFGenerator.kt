@@ -10,7 +10,6 @@ import māia.ml.dataset.type.DataRepresentation
 import māia.ml.dataset.type.standard.Nominal
 import māia.ml.dataset.type.standard.Numeric
 import māia.util.assertType
-import māia.util.inlineRangeForLoop
 import māia.util.magnitude
 import māia.util.nextDoubleArray
 import māia.util.nextGaussian
@@ -56,7 +55,7 @@ class RandomRBFGenerator(
     }
 
     private val headersInternal = MutableDataColumnHeaders(numColumns).also { headers ->
-        inlineRangeForLoop(numAttributes) { index ->
+        repeat(numAttributes) { index ->
             headers.append("att ${index + 1}", Numeric.PlaceHolder(false), false)
         }
         headers.append("class", Nominal.PlaceHolder(false, *Array(numClasses) { "class ${it + 1}" }), true)
