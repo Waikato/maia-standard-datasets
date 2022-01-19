@@ -1,19 +1,19 @@
-package māia.ml.dataset.standard
+package maia.ml.dataset.standard
 
-import māia.ml.dataset.DataMetadata
-import māia.ml.dataset.DataRow
-import māia.ml.dataset.DataStream
-import māia.ml.dataset.headers.DataColumnHeaders
-import māia.ml.dataset.headers.MutableDataColumnHeaders
-import māia.ml.dataset.headers.ensureOwnership
-import māia.ml.dataset.type.DataRepresentation
-import māia.ml.dataset.type.standard.Nominal
-import māia.ml.dataset.type.standard.Numeric
-import māia.util.assertType
-import māia.util.magnitude
-import māia.util.nextDoubleArray
-import māia.util.nextGaussian
-import māia.util.nextIntWeighted
+import maia.ml.dataset.DataMetadata
+import maia.ml.dataset.DataRow
+import maia.ml.dataset.DataStream
+import maia.ml.dataset.headers.DataColumnHeaders
+import maia.ml.dataset.headers.MutableDataColumnHeaders
+import maia.ml.dataset.headers.ensureOwnership
+import maia.ml.dataset.type.DataRepresentation
+import maia.ml.dataset.type.standard.Nominal
+import maia.ml.dataset.type.standard.Numeric
+import maia.util.assertType
+import maia.util.magnitude
+import maia.util.nextDoubleArray
+import maia.util.nextGaussian
+import maia.util.nextIntWeighted
 import kotlin.random.Random
 
 /**
@@ -85,7 +85,7 @@ class RandomRBFGenerator(
         override val headers: DataColumnHeaders,
         private val attributeValues: DoubleArray,
         private val classIndex: Int
-    ): māia.ml.dataset.DataRow {
+    ): maia.ml.dataset.DataRow {
         override fun <T> getValue(
             representation : DataRepresentation<*, *, out T>
         ) : T = headers.ensureOwnership(representation) {

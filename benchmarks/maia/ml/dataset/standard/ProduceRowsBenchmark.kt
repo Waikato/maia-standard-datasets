@@ -1,10 +1,10 @@
-package māia.ml.dataset.standard
+package maia.ml.dataset.standard
 
 import kotlinx.benchmark.Blackhole
 import kotlinx.benchmark.Mode
 import kotlinx.benchmark.Scope
-import māia.ml.dataset.type.standard.Numeric
-import māia.util.assertType
+import maia.ml.dataset.type.standard.Numeric
+import maia.util.assertType
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Measurement

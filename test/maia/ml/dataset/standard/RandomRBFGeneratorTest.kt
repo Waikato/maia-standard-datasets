@@ -1,4 +1,4 @@
-package māia.ml.dataset.standard
+package maia.ml.dataset.standard
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
