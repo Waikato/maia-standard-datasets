@@ -93,7 +93,7 @@ class RandomRBFGenerator(
                 if (it < attributeValues.size)
                     convert(attributeValues[it], assertType<Numeric<*, *>>(dataType).canonicalRepresentation)
                 else
-                    convert(classIndex, assertType<Nominal<*, *, *, *>>(dataType).indexRepresentation)
+                    convert(classIndex, assertType<Nominal<*, *, *, *, *>>(dataType).indexRepresentation)
             }
         }
     }
